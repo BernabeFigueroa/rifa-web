@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Rifa UTN</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #e3f2fd;
+    }
+    h1 { color: #333; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 10px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .numero {
+      padding: 15px;
+      background: gold;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .numero:hover { background: orange; color: #fff; }
+    .vendido {
+      background: #ccc;
+      color: #666;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎟️ Super Rifa UTN 🎟️</h1>
+  <p>Haz clic en el número para reservarlo por WhatsApp</p>
+
+  <div class="grid" id="grid"></div>
+
+  <script>
+    const telefono = "543865658489"; // <-- tu número WhatsApp
+    const inicio = 2288;  // primer número
+    const fin = 2573;     // último número
+    const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS23_BK5Y9HJRFtBgay2IAIHR2AZ9LzQ7ikMhSD8ZpUXffKepoikAn4oaVE-FWbyQ2TzsV_UQTx8xxt/pub?output=csv"; // <-- link publicado como CSV
+
+    async function getVendidos() {
+      const resp = await fetch(urlCSV);
+      const data = await resp.text();
+      // Convierte el CSV en array (salta la primera fila "vendidos")
+      const vendidos = data.split("\n").slice(1).map(n => n.trim()).filter(n => n !== "");
+      return vendidos;
+    }
+
+    async function renderGrid() {
+      const vendidos = await getVendidos();
+      const grid = document.getElementById("grid");
+      for (let i = inicio; i <= fin; i++) {
+        let btn = document.createElement("div");
+        btn.className = "numero";
+        btn.innerText = i;
+
+        if (vendidos.includes(i.toString())) {
+          btn.classList.add("vendido");
+        } else {
+          btn.onclick = () => {
+            let mensaje = `Hola, quiero reservar la rifa número ${btn.innerText}`;
+            let url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, "_blank");
+          };
+        }
+        grid.appendChild(btn);
+      }
+    }
+
+    renderGrid();
+  </script>
+
+</body>
+</html>
