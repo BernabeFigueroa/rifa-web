@@ -6,24 +6,63 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
       background: #e3f2fd;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      text-align: center;
       padding: 20px;
     }
-    h1 { color: #333; }
+    h1 { color: #333; margin-bottom: 10px; }
+    p { margin: 5px 0; }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 20px;
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .premios {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .premios h2 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .premio {
+      margin-bottom: 20px;
+    }
+    .premio img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
       gap: 10px;
-      max-width: 800px;
-      margin: 20px auto;
-    }
-    .numero {
+      margin: auto;
+      background: #fff;
       padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .numero {
+      padding: 12px;
       background: gold;
       border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
+      text-align: center;
     }
     .numero:hover { background: orange; color: #fff; }
     .vendido {
@@ -31,34 +70,105 @@
       color: #666;
       pointer-events: none;
     }
+
+    .info {
+      text-align: center;
+      margin: 30px auto;
+      max-width: 900px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
     .pie {
-      margin-top: 40px;
+      margin-top: 15px;
       font-size: 1.1em;
       color: #444;
-      background: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
   </style>
 </head>
 <body>
 
-  <h1> Super Rifa UTN 🎟️</h1>
-  <p>Haz clic en el número para reservarlo por WhatsApp</p>
+  <header>
+    <h1>🎟️ Bono Contribución Eurotrip 2026 🎟️</h1>
+    <p>Haz clic en el número para reservarlo por WhatsApp</p>
+    <p><b>Desde 2288 hasta 2573</b></p>
+    <p>💲 Precio: $2000 | Promo 3 números: $5000</p>
+  </header>
 
-  <div class="grid" id="grid"></div>
+  <div class="container">
+    <!-- Columna izquierda: premios -->
+    <div class="premios">
+      <h2>🏆 Premios</h2>
 
-  <div class="pie">
-    Somos estudiantes de <b>Ingeniería en Sistemas</b> y realizamos este Bono Contribución
-    para recaudar fondos y participar en el <b>Congreso Internacional en Europa 2026</b>.
-    <br>¡Tu colaboración nos acerca a cumplir este sueño académico! 🌍✨
+      <div class="premio">
+        <img src="https://i.imgur.com/gJ7Z4xX.png" alt="Notebook Asus Vivobook">
+        <p>1) Notebook Asus Vivobook 15.6" <br>
+        Intel Core i3 - 8GB RAM - 128GB SSD - Full HD - Windows 11</p>
+      </div>
+
+      <div class="premio">
+        <img src="https://i.imgur.com/xZc2l9E.png" alt="Combo teclado + mouse">
+        <p>2) Combo Teclado + Mouse Inalámbrico</p>
+      </div>
+
+      <div class="premio">
+        <img src="https://i.imgur.com/24wMxPB.png" alt="Auriculares gamer">
+        <p>3) Auriculares Gamer</p>
+      </div>
+    </div>
+
+    <!-- Columna derecha: números -->
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- Información del sorteo -->
+  <div class="info">
+    <h2>📅 Sorteo</h2>
+    <p>Se sortea el día <b>29/11/25</b> - Lotería vespertina de Tucumán (4 cifras)</p>
+    <div class="pie">
+      Somos estudiantes de <b>Ingeniería en Sistemas</b> y realizamos este Bono Contribución
+      para recaudar fondos y participar en el <b>Congreso Internacional en Europa 2026</b>.
+      <br>¡Tu colaboración nos acerca a cumplir este sueño académico! 🌍✨
+    </div>
   </div>
 
   <script>
     const telefono = "543865658489"; // <-- tu número WhatsApp
     const inicio = 2288;  // primer número
-    const fin
+    const fin = 2573;     // último número
+    const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS23_BK5Y9HJRFtBgay2IAIHR2AZ9LzQ7ikMhSD8ZpUXffKepoikAn4oaVE-FWbyQ2TzsV_UQTx8xxt/pub?output=csv"; // <-- link publicado como CSV
+
+    async function getVendidos() {
+      const resp = await fetch(urlCSV);
+      const data = await resp.text();
+      const vendidos = data.split("\n").slice(1).map(n => n.trim()).filter(n => n !== "");
+      return vendidos;
+    }
+
+    async function renderGrid() {
+      const vendidos = await getVendidos();
+      const grid = document.getElementById("grid");
+      for (let i = inicio; i <= fin; i++) {
+        let btn = document.createElement("div");
+        btn.className = "numero";
+        btn.innerText = i;
+
+        if (vendidos.includes(i.toString())) {
+          btn.classList.add("vendido");
+        } else {
+          btn.onclick = () => {
+            let mensaje = `Hola, quiero reservar la rifa número ${btn.innerText}`;
+            let url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, "_blank");
+          };
+        }
+        grid.appendChild(btn);
+      }
+    }
+
+    renderGrid();
+  </script>
+
+</body>
+</html>
